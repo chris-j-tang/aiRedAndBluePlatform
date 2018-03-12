@@ -1,0 +1,184 @@
+#mynetwork {
+	height: 600px;
+	border: 1px solid lightgray;
+}
+
+.intro-btn, #result, #scoreBar {
+	text-align: center;
+	font-size: 40px;
+	background-color: lightgray;
+	padding: 20px 10px 20px 10px;
+	margin-top: 20px;
+	color: white;
+	border-radius: 10px;
+	text-decoration: none;
+	border-style: solid;
+	border-color: black;
+}
+
+#container {
+	max-width: 400px;
+	height: 400px;
+	margin: auto;
+}
+
+#redBlueTitle {
+	margin: auto;
+	margin-top: 30px;
+	width: 1008px;
+	padding: 5px;
+}
+
+#redBlueTitleText {
+	position: fixed;
+    display: block;
+	margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+#redHalf {
+	position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    display: block;
+    -webkit-clip-path: polygon(0 0, 65% 0, 35% 100%, 0% 100%);
+	clip-path: polygon(0 0, 65% 0, 35% 100%, 0% 100%);
+    background-color: #c91414;
+}
+
+#blueHalf {
+	position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    display: block;
+    -webkit-clip-path: polygon(65% 0, 100% 0, 100% 100%, 35% 100%);
+	clip-path: polygon(65% 0, 100% 0, 100% 100%, 35% 100%);
+    background-color: #3227ce;
+}
+
+#redScore {
+	float: left;
+	clear: left;
+	width: 40%;
+    display: block;
+	background: #c91414;
+	padding: 5px 10px 0px 10px;
+	border-radius: 10px;
+}
+
+#blueScore {
+	float: right;
+	clear: right;
+	width: 40%;
+    display: block;
+	background: #3227ce;
+	padding: 5px 10px 0px 10px;
+	border-radius: 10px;
+}
+
+#yourGameSession {
+	top: 5%;
+	left: 50%;
+	margin: 0px;
+}
+
+#scoreBarText {
+	font-size: 20px;
+	color: darkgray;
+	text-align: center;
+	margin: 0px;
+}
+
+#redScoreBarText, #blueScoreBarText, #timeTextValue {
+	font-size: 36px;
+	color: white;
+	text-align: center;
+	margin: 0px;
+}
+
+.session {
+	background-color: blue;
+	padding: 50px 40px 50px 40px;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+}
+
+.centerBlock, .mainBlock {
+	background-color: rgb(127, 127, 127);
+	padding: 40px 60px 40px 60px;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 20px;
+	min-width: 317px;
+    min-height: 262px;
+}
+
+.centerBlock a, .mainBlock a {
+	text-decoration: none;
+}
+
+.centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mainBlock {
+	background-color: rgba(175, 25, 0, 0.9);
+}
+
+.nodeCountInput, .roundCountInput, .timeLimitInput, .playerName, .inputSession {
+	padding: 20px;
+	margin-top: 20px;
+	margin-left: 5%;
+	margin-right: 5%;
+	font-size: 20px;
+	background-color: lightgray;
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+}
+
+.myButton {
+	margin-top: 30px;
+	margin-left: 50px;
+	background-color:#44c767;
+	-moz-border-radius:28px;
+	-webkit-border-radius:28px;
+	border-radius:28px;
+	border:1px solid #18ab29;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:23px;
+	font-weight:bold;
+	padding:14px 31px;
+	text-decoration:none;
+	text-shadow:0px 0px 10px #2f6627;
+}
+.myButton:hover {
+	background-color:#5cbf2a;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+
+footer {
+	position: absolute;
+	bottom: 0px;
+	text-align: center;
+	font-size: 20px;
+    width:100%;
+    height:60px;
+	background-color: darkgray;
+}

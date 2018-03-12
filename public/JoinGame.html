@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<title>Red & Blue Game - Join Game</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="style/style.css" >
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="jquery-1.12.1.js"></script>
+</head>
+
+<body>
+	<div id="redBlue">
+		<div id="redHalf"></div>
+		<div id="blueHalf"></div>
+	</div>
+	<div class="centered">
+		<div class="centerBlock">
+			<input type="text" placeholder="Game Session ID" id="id" name="sessionid" class="inputSession" maxlength="8" style="text-align:center;"></input>
+			<input type="text" placeholder="Player Name" id="playerName" name="playerName" required="true" class="playerName" style="text-align:center;"></input>
+			<input type="button" class="myButton" value="Join Game" onClick="join()" ></input>
+		</div>
+	</div>
+	<script type="text/javascript">
+	
+	$("body").keypress(function(e) {
+		if (e.which == 13) {
+			join();
+			return false;
+		}
+	});
+	</script>
+	
+	<script type="text/javascript">
+		function join() {
+			var socket = io();
+			
+			sessionStorage.setItem('sessionID', document.getElementById("id").value);
+			sessionStorage.setItem('playerName', document.getElementById("playerName").value);
+			sessionStorage.setItem('host', "false");
+			
+			socket.on('get-validation', function(valid) {
+				if(valid == true) {
+					window.location.replace("PlayGame.html");
+				}
+				else {
+					console.log('No game exists');
+				}
+			});
+		}
+	</script>
+	
+</body>
+</html>
