@@ -1,19 +1,42 @@
+const assert = require('assert');
 const express = require('express');
 const app = express();
 
+const RateLimiter = require('express-rate-limit');
 const Manager = require('./manager');
 
 let manager = new Manager();
 
-app.route('/game/:gameId/')
+app.use(express.json());
+
+app.route('/game')
   // Starting a game
-  .post(function (req, res) {
-    gameId = req.params.gameId;
-    if (!manager.getGame(gameId)) {
-      manager.makeGame(gameId, req.query.seed);
-      res.sendStatus(201);
-    } else res.sendStatus(409);
-  })
+  .post(new RateLimiter({
+    // Limit the rate at which game creation requests may be made
+    // Track requests for 1 minute
+    windowMs: 60*1000,
+    // Limit to 2 requests per tracking window
+    max: 3,
+    // Disable successive request delays
+    delayMs: 0,
+    // Don't count failed requests
+    skipFailedRequests: true
+
+  }), function (req, res) {
+    try {
+      assert(Number.isInteger(req.body.nodes), 'Required field "nodes" must be an integer');
+      assert(Number.isInteger(req.body.rounds), 'Required field "rounds" must be an integer');
+      assert(Number.isInteger(req.body.time), 'Required field "time" must be an integer');
+      if ('seed' in req.body)
+        assert(Number.isInteger(req.body.seed), 'Optional field "seed" must be an integer');
+      let id = manager.makeGame(req.body.nodes, req.body.rounds, req.body.time, req.body.seed);
+      res.location('/game/' + id).sendStatus(201);
+    } catch (error) {
+      res.status(400).send(error.stack);
+    }
+  });
+
+app.route('/game/:gameId/')
   // Observing a game
   .get(function (req, res) {
     gameId = req.params.gameId;

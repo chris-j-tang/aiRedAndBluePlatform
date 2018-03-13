@@ -1,19 +1,19 @@
 #### Starting a game:
-You can start a game by sending a `POST` request to `/game/<id>`, where `<id>` is the id you wish to give the game.
-The server will return `409 Conflict` if a game under that name already exists.
-Otherwise, the server returns `201 Created` with an empty body.
+You can start a game by sending a `POST` request to `/game`.
+The body of the request must contain a `json` object with the following fields:
 
-You may also specify a seed, via query string, to use for the game's RNG.
+Field Name | Type | Description
+-|-|-
+`nodes` | `int` | The number of nodes in the game graph.
+`rounds` | `int` | The maximum number of rounds the game will run for.
+`time` | `int` | The amount of time, in milliseconds, that each player will have to submit a move.
+`seed` | `int` | An *optional* seed used to construct the randomized game graph.
 
-For example, to start a game named `FINALS` with seed `SUPER_HARD`, the full route would be:
-```
-/game/FINALS?seed=SUPER_HARD
-```
+Upon successful creation of the game, the server responds with `201 Created`. The location of the game is returned via the `Location` header. It is of the form `/game/{id}`, where `{id}` denotes the game's unique identifier.
 
-**TODO**
-Only allow authorized users to create games.
-Consider using passport.js for authentification.
+If the server cannot create the game, `400 Bad Request` is returned, the body of which is a string describing why the request failed.
 
+Furthermore, if the client has requested too many games to be created, then the server returns `429 Too Many Requests`.
 
 #### Joining a game:
 After a game is created, two clients must connect in order for the game to begin.
