@@ -34,20 +34,9 @@
 	
 	<script type="text/javascript">
 		function join() {
-			var socket = io();
-			
 			sessionStorage.setItem('sessionID', document.getElementById("id").value);
 			sessionStorage.setItem('playerName', document.getElementById("playerName").value);
-			sessionStorage.setItem('host', "false");
 			
-			socket.on('get-validation', function(valid) {
-				if(valid == true) {
-					window.location.replace("PlayGame.html");
-				}
-				else {
-					console.log('No game exists');
-				}
-			});
 		}
 	</script>
 	
