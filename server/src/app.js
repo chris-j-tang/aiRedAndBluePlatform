@@ -54,4 +54,31 @@ app.route('/game/:gameId/')
     else res.sendStatus(404);
   });
 
+//for testing
+app.route('/getIds').get(function (req, res) {
+    res.status(201).send(manager.getIds());
+});
+
+app.route('/print/:gameId/').get(function(req, res) {
+    gameId = req.params.gameId;
+    game = manager.getGame(gameId);
+    if (game) {
+      res.status(201).send(game.printNodes() + game.printMatrix());
+    }
+});
+
+app.route('/select/:gameId/').post(function (req,res) {
+      try {
+      assert(Number.isInteger(req.body.node), 'Required field "node" must be an integer');
+      gameId = req.params.gameId;
+      game = manager.getGame(gameId);
+      if (game) {
+        game.selectNode(req.body.node);
+        res.location('/game/' + gameId).sendStatus(201);
+      }
+    } catch (error) {
+      res.status(400).send(error.stack);
+    }
+})
+
 app.listen(4040, () => console.log('Listening on port 4040!'));

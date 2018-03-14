@@ -9,8 +9,8 @@ class Manager {
 
   makeGame(nodes, rounds, time, seed) {
     let id = idgen();
-    while (id in games) id = idgen();
-    games[id] = new Game(id, seed);
+    while (id in this.games) id = idgen();
+    this.games[id] = new Game(id, seed, nodes, rounds, time, 0.5);
     return id;
   }
 
@@ -24,6 +24,13 @@ class Manager {
       delete this.games[id];
       return game.state;
     } else return undefined;
+  }
+
+  //for testing
+  getIds() {
+    let ids_arr = Object.keys(this.games);
+    let ids_str = ids_arr.toString();
+    return ids_str;
   }
 
 }
