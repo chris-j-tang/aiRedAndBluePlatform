@@ -7,6 +7,7 @@ Field Name | Type | Description
 `nodes` | `int` | The number of nodes in the game graph.
 `rounds` | `int` | The maximum number of rounds the game will run for.
 `time` | `int` | The amount of time, in milliseconds, that each player will have to submit a move.
+`prob` | `int` | An *optional* parameter for graph creation that specifies the probability that any given edge will exist.
 `seed` | `int` | An *optional* seed used to construct the randomized game graph.
 
 Upon successful creation of the game, the server responds with `201 Created`. The location of the game is returned via the `Location` header. It is of the form `/game/{id}`, where `{id}` denotes the game's unique identifier.
