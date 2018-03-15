@@ -28,9 +28,7 @@ class Manager {
 
   //for testing
   getIds() {
-    let ids_arr = Object.keys(this.games);
-    let ids_str = ids_arr.toString();
-    return ids_str;
+    return Object.keys(this.games);
   }
 
 }

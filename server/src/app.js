@@ -34,6 +34,9 @@ app.route('/game')
     } catch (error) {
       res.status(400).send(error.stack);
     }
+  })
+  .get(function(req, res) {
+    res.status(200).send(manager.getIds());
   });
 
 app.route('/game/:gameId/')
@@ -55,10 +58,6 @@ app.route('/game/:gameId/')
   });
 
 //for testing
-app.route('/getIds').get(function (req, res) {
-    res.status(201).send(manager.getIds());
-});
-
 app.route('/print/:gameId/').get(function(req, res) {
     gameId = req.params.gameId;
     game = manager.getGame(gameId);
