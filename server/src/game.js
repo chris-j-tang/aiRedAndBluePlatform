@@ -1,93 +1,96 @@
-const seedrandom = require('seedrandom');
+const assert = require('assert');
 
 const Colors = require('./colors');
+const DeferredPromise = require('./deferred-promise');
 
-function makeRandomState(nodes, prob, seed) {
-  if (seed == undefined) seed = Date.now();
-  let rng = seedrandom(seed);
-  if (prob == undefined) prob = rng();
-  let state = {}
-  state.nodes = [];
-  state.colors = [];
-
-  for (let i = 0; i < nodes; ++i) {
-    state.nodes.push([]);
-    state.colors.push(Colors.NONE);
+class Player {
+  constructor(color) {
+    this.color = color;
+    this.score = 0;
   }
-
-  for (let i = 0; i < nodes; ++i)
-    for (let j = i + 1; j < nodes; ++j)
-      if (rng() <= prob) {
-        state.nodes[i].push(j);
-        state.nodes[j].push(i);
-      }
-  return state;
 }
 
+const colors = [Colors.RED, Colors.BLUE];
+
 class Game {
-  constructor(rounds, time, state) {
+  constructor(rounds, time, graph) {
     this.rounds = rounds;
     this.time = time;
-    this.state = state;
-    this.players = [];
+    this.graph = graph;
+
     this.turn = 0;
+    this.players = {};
+    this.order = [];
+  }
+
+  getPlayerCount() {
+    return Object.keys(this.players).length;
   }
 
   hasPlayers() {
-    return this.players.length == 2;
+    return this.getPlayerCount() == 2;
   }
 
-  isPlayer(id) {
-    return this.players.includes(id);
+  isPlayer(player) {
+    return player in this.players;
   }
 
-  join(id) {
-    assert(!this.hasPlayers(), 'Game is already full');
-    assert(!this.isPlayer(id), 'Player with id ' + id + ' has already joined this match');
-    this.players.push(id);
+  isTurn(player) {
+    return player == this.order[this.turn % this.order.length];
   }
 
-  isTurn(id) {
-    return this.players[this.turn % 2] == id;
+  getColor(player) {
+    return this.players[player].color;
   }
 
-  getColor(id) {
-    assert(this.isPlayer(id), 'Invalid player id: ' + id);
-    return [Colors.RED, Colors.BLUE][this.players.indexOf(id)];
-  }
-
-  getScore(id) {
-    let color = this.getColor(id);
-    return this.state.colors.reduce((a, c) => a + (c == color? 1 : 0));
+  getScore(player) {
+    return this.players[player].score;
   }
 
   getRound() {
-    return this.turn / 2;
+    return Math.floor(this.turn / 2);
   }
 
   isDone() {
-    return this.getRound() == this.rounds || this.state.colors.every(c => c != Colors.NONE);
+    return this.round == this.rounds || this.graph.getNodesColored(Colors.NONE).length == 0;
   }
 
-  select(id, node) {
-    assert(!this.isDone(), 'Game is already over');
-    assert(this.hasPlayers(), 'Not enough players');
-    assert(this.isTurn(id), 'Wrong player');
-    assert(this.state.colors[node] == Colors.NONE, 'Node already colored');
-    let color = this.getColor(id);
-    this.state.colors[node] = color;
+  join(player) {
+    assert(!this.hasPlayers(), 'Game is already full');
+    assert(!this.isPlayer(player), 'Player ' + player + ' has already joined');
+    this.players[player] = new Player(colors[this.getPlayerCount()]);
+    this.order.push(player);
+  }
+
+  submit(player, node) {
+    assert(this.hasPlayers(), 'Game has not started');
+    assert(!this.isDone(), 'Game is done');
+    assert(this.isTurn(player), 'Wrong player');
+    assert(this.graph.getColor(node) == Colors.NONE, 'Node is already colored');
+    const color = this.getColor(player);
+    this.graph.color(node, color);
     let diff = [node];
-    for (let x of this.state.nodes[node])
-      if (this.state.colors[x] != color) {
-        this.state.colors[x] = color;
-        diff.push(x);
+    for (let n of this.graph.getNeighbors(node))
+      if (this.graph.getColor(n) != color) {
+        this.graph.color(n, color);
+        diff.push(n);
       }
+    for (let p of Object.values(this.players))
+      p.score = this.graph.getNodesColored(p.color).length;
     ++this.turn;
     return diff;
   }
 
+  getState() {
+    return {
+      static: {
+        rounds: this.rounds,
+        time: this.time,
+        graph: this.graph.getAdjacencyLists(),
+      },
+      colors: this.graph.getColors()
+    };
+  }
 }
 
-module.exports = function makeGame(rounds, time, nodes, prob, seed) {
-  return new Game(rounds, time, makeRandomState(nodes, prob, seed));
-};
+module.exports = Game;

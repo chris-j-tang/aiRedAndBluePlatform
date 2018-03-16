@@ -1,14 +1,13 @@
 const assert = require('assert');
 const express = require('express');
 const app = express();
-
-const makeGame = require('./game');
 const hidgen = require('human-readable-ids').hri.random;
 
 const RateLimiter = require('express-rate-limit');
+const Game = require('./game');
+const Graph = require('./graph');
 
 let games = {};
-let polls = {};
 
 app.use(express.json());
 
@@ -38,7 +37,7 @@ app.route('/game')
         assert(Number.isInteger(req.body.seed), 'Optional field "seed" must be an integer');
       let id = hidgen();
       while (id in games) id = hidgen();
-      games[id] = makeGame(req.body.rounds, req.body.time, req.body.nodes, req.body.prob, req.body.seed);
+      games[id] = new Game(req.body.rounds, req.body.time, Graph.makeRandom(req.body.nodes, req.body.prob, req.body.seed));
       res.location('/game/' + id).sendStatus(201);
     } catch (error) {
       res.status(400).send(error.stack);
@@ -56,24 +55,24 @@ app.route('/game/:gameId/')
     if (game) {
       if (!game.hasPlayers() && !game.isPlayer(player)) {
         game.join(player);
+        res.sendStatus(200);
       } else res.sendStatus(423);
     } else res.sendStatus(404);
   })
   // Observing a game
   .get(function (req, res) {
-    gameId = req.params.gameId;
-    game = games[gameId];
+    let game = games[req.params.gameId];
     if (game) {
-      res.status(201).send(game);
+      res.status(200).send(game.getState());
     } else res.sendStatus(404);
   })
   // Removing a game
   .delete(function (req, res) {
     // TODO: Check if game is in progress
-    game = games[gameId];
+    let game = games[req.params.gameId];
     if (game) {
-      res.status(200).send(game.state);
-      delete games[gameId];
+      res.status(200).send(game.getState());
+      delete games[req.params.gameId];
     } else res.sendStatus(404);
   });
 
