@@ -8,6 +8,7 @@ const hidgen = require('human-readable-ids').hri.random;
 const RateLimiter = require('express-rate-limit');
 
 let games = {};
+let polls = {};
 
 app.use(express.json());
 
@@ -48,6 +49,16 @@ app.route('/game')
   });
 
 app.route('/game/:gameId/')
+  // Joining a game
+  .post(function (req, res) {
+    let game = games[req.params.gameId];
+    let player = req.body.id;
+    if (game) {
+      if (!game.hasPlayers() && !game.isPlayer(player)) {
+        game.join(player);
+      } else res.sendStatus(423);
+    } else res.sendStatus(404);
+  })
   // Observing a game
   .get(function (req, res) {
     gameId = req.params.gameId;

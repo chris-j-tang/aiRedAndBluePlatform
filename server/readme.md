@@ -18,21 +18,22 @@ Furthermore, if the client has requested too many games to be created, then the 
 
 #### Joining a game:
 After a game is created, two clients must connect in order for the game to begin.
-They can connect by sending a `GET` request to the game's join url:
+They can connect by sending a `POST` request to the game's url:
 ```
-/game/<game id>/join/
+/game/<game id>
 ```
+The request must contain a `json` object with a single field `id` field. This field must hold a string containing an identifier for the participant.
 
 The server will respond with `200 OK` for the first two connections it receives.
-The body of these two responses will contain a single `uid` field, which contains a unique identifier that the client should use to submit moves to the game server.
 
-Any further requests will be met with `410 Gone`.
+Any further requests will be met with `423 Locked`.
+Note that if the same `id` is provided over multiple requests, only the first may be accepted. Further requests will also be met with `423 Locked`.
 
 
 #### Playing a game:
 After joining a game, the clients should initiate long polling the game server with their unique ids:
 ```
-/game/<game id>/<uid>/
+/game/<game id>/<player id>/
 ```
 
 The long polling process begins by issuing an empty `GET` request to the above URL.
