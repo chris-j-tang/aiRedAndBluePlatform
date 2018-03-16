@@ -24,7 +24,8 @@ They can connect by sending a `POST` request to the game's url:
 ```
 The request must contain a `json` object with a single field `id` field. This field must hold a string containing an identifier for the participant.
 
-The server will respond with `200 OK` for the first two connections it receives.
+The server will respond with `200 OK` for the first two connections it receives. The body of the response contains the full game state.
+The response occurs when both clients have connected, so that both clients get to see the game state at the same time.
 
 Any further requests will be met with `423 Locked`.
 Note that if the same `id` is provided over multiple requests, only the first may be accepted. Further requests will also be met with `423 Locked`.
@@ -69,6 +70,8 @@ The status of any game can be polled via a `GET` request to the game URL:
 If the game id is not valid, the server responds with a `404 Not Found`.
 Otherwise, the server will respond with `200 OK` with the game state in the body.
 
+Any request that occurs before the start of the game will be suspended until the game begins (that is, two players have joined).
+This is to keep the game state secret from clients until the game actually begins.
 
 #### Removing a game:
 After a game is completed, it can be removed from the server with a `DELETE` request to the game URL:

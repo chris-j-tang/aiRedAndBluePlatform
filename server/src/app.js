@@ -55,7 +55,7 @@ app.route('/game/:gameId/')
     if (game) {
       if (!game.hasPlayers() && !game.isPlayer(player)) {
         game.join(player);
-        res.sendStatus(200);
+        game.getState().then(state => res.status(200).send(state));
       } else res.sendStatus(423);
     } else res.sendStatus(404);
   })
@@ -63,16 +63,17 @@ app.route('/game/:gameId/')
   .get(function (req, res) {
     let game = games[req.params.gameId];
     if (game) {
-      res.status(200).send(game.getState());
+      game.getState().then(state => res.status(200).send(state));
     } else res.sendStatus(404);
   })
   // Removing a game
   .delete(function (req, res) {
-    // TODO: Check if game is in progress
     let game = games[req.params.gameId];
     if (game) {
-      res.status(200).send(game.getState());
-      delete games[req.params.gameId];
+      if (game.isDone()) {
+        game.getState().then(state => res.status(200).send(state));
+        delete games[req.params.gameId];
+      } else res.sendStatus(400);
     } else res.sendStatus(404);
   });
 

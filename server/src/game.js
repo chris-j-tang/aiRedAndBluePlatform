@@ -21,6 +21,9 @@ class Game {
     this.turn = 0;
     this.players = {};
     this.order = [];
+
+    this.promises = {};
+    this.promises.begin = new DeferredPromise();
   }
 
   getPlayerCount() {
@@ -60,6 +63,8 @@ class Game {
     assert(!this.isPlayer(player), 'Player ' + player + ' has already joined');
     this.players[player] = new Player(colors[this.getPlayerCount()]);
     this.order.push(player);
+    if (this.hasPlayers())
+      this.promises.begin.resolve();
   }
 
   submit(player, node) {
@@ -82,14 +87,14 @@ class Game {
   }
 
   getState() {
-    return {
+    return this.promises.begin.then(() => new Object({
       static: {
         rounds: this.rounds,
         time: this.time,
         graph: this.graph.getAdjacencyLists(),
       },
       colors: this.graph.getColors()
-    };
+    }));
   }
 }
 
