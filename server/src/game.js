@@ -50,6 +50,10 @@ class Game {
     return this.players[player].score;
   }
 
+  getOpponent(player) {
+    return Object.keys(this.players).find(c => c != player);
+  }
+
   getRound() {
     return Math.floor(this.turn / 2);
   }
@@ -77,11 +81,12 @@ class Game {
     let diff = [node];
     for (let n of this.graph.getNeighbors(node))
       if (this.graph.getColor(n) != color) {
+        if (this.graph.getColor(n) != Colors.NONE)
+          this.players[this.getOpponent(player)].score -= 1;
         this.graph.color(n, color);
         diff.push(n);
       }
-    for (let p of Object.values(this.players))
-      p.score = this.graph.getNodesColored(p.color).length;
+    this.players[player].score += diff.length;
     ++this.turn;
     return diff;
   }
