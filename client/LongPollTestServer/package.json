@@ -1,0 +1,15 @@
+{
+  "name": "LongPollTestServer",
+  "version": "0.0.1",
+  "private": true,
+  "contributors": [
+    "Jason Lee <leej45@rpi.edu>"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
