@@ -226,7 +226,7 @@ def joinGame(server, details):
     # <=== begin more testing ===>
 
     # automatically send a play request so we know when the first turn is ready
-    listen(server, 'GET', '/game/' + gameId + '/' + gameUid + '/', '', {}, 1, False)
+    listen(server, 'GET', '/game/' + gameId + '/' + gameUid + '/', '', {}, 1)
 
     # <=== end more testing ===>
 
@@ -250,10 +250,10 @@ def makeMove(server, details):
 
     if resStatus == S_VALID_MOVE:
         print 'Move submitted, waiting for other player...'
-        state = resBody # TODO: save the state somethere
+        state = resBody # TODO: save the state somewhere
 
         # Start a new listener so we are told when to move next
-        listen(server, 'GET', '/game/' + gameId + '/' + gameUid + '/', '', {}, 1, False)
+        listen(server, 'GET', '/game/' + gameId + '/' + gameUid + '/', '', {}, 1)
     elif resStatus == S_INVALID_MOVE:
         print 'Error: Invalid move made, please try again'
     elif resStatus == S_GAME_NOT_FOUND:
