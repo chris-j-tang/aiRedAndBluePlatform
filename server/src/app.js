@@ -77,4 +77,21 @@ app.route('/game/:gameId/')
     } else res.sendStatus(404);
   });
 
+app.route('/game/:gameId/:playerId/')
+  // Requesting a turn
+  .get(function (req, res) {
+    let game = games[req.params.gameId];
+    if (game && game.isPlayer(req.params.playerId)) {
+      game.request(req.params.playerId).then(diff => res.status(200).send(diff));
+    } else res.sendStatus(404);
+  })
+  // Submitting a move
+  .post(function(req, res) {
+    let game = games[req.params.gameId];
+    if (game && game.isPlayer(req.params.playerId)) {
+      let diff = game.submit(req.params.playerId, req.body.node);
+      res.status(200).send(diff);
+    } else res.sendStatus(404);
+  });
+
 app.listen(4040, () => console.log('Listening on port 4040!'));

@@ -9,6 +9,14 @@ class Player {
     this.score = 0;
   }
 }
+function makeDiff(game, delta) {
+  let diff = {};
+  diff.round = game.getRound();
+  diff.scores = Object.values(game.players).map(p => p.score);
+  if (delta)
+    diff.delta = delta;
+  return diff;
+}
 
 const colors = [Colors.RED, Colors.BLUE];
 
@@ -24,6 +32,9 @@ class Game {
 
     this.promises = {};
     this.promises.begin = new DeferredPromise();
+    this.promises.begin.then(() => this.request(this.order[0]).resolve(makeDiff(this)));
+
+    this.promises.request = {};
   }
 
   getPlayerCount() {
@@ -71,23 +82,36 @@ class Game {
       this.promises.begin.resolve();
   }
 
+  request(player) {
+    assert(!this.isDone(), 'Game is done');
+    if (!(player in this.promises.request))
+      this.promises.request[player] = new DeferredPromise()
+    return this.promises.request[player];
+  }
+
   submit(player, node) {
     assert(this.hasPlayers(), 'Game has not started');
     assert(!this.isDone(), 'Game is done');
     assert(this.isTurn(player), 'Wrong player');
     assert(this.graph.getColor(node) == Colors.NONE, 'Node is already colored');
+    assert(this.promises.request[player] != undefined, 'Player did not request turn');
+    delete this.promises.request[player];
+    let opreq = this.request(this.getOpponent(player));
+
     const color = this.getColor(player);
     this.graph.color(node, color);
-    let diff = [node];
+    let delta = [node];
     for (let n of this.graph.getNeighbors(node))
       if (this.graph.getColor(n) != color) {
         if (this.graph.getColor(n) != Colors.NONE)
           this.players[this.getOpponent(player)].score -= 1;
         this.graph.color(n, color);
-        diff.push(n);
+        delta.push(n);
       }
-    this.players[player].score += diff.length;
+    this.players[player].score += delta.length;
     ++this.turn;
+    let diff = makeDiff(this, delta);
+    opreq.resolve(diff);
     return diff;
   }
 
