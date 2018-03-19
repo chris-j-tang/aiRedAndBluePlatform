@@ -49,13 +49,6 @@ def main():
                 print 'Error: Need one argument (game id)'
         elif command[0] == 'quit':
             print 'Bye'
-        # elif command[0] == 'listen':
-        #     if len(command) == 2:
-        #         listen(server, 'GET', command[1], '', {}, 0, False)
-        #     elif len(command) == 3:
-        #         listen(server, 'GET', command[1], '', {}, int(command[2]), False)
-        #     else:
-        #         print 'Error: invalid number of arguments (need 1 or 2)'
         else:
             print 'Error: Unknown command -', ' '.join(command)
             usage()
@@ -73,7 +66,7 @@ def usage():
 # Wrapper function for any tasks that should only run on startup
 def init():
     server = config()
-    
+
     print 'Type "?" for a list of commands'
     return server
 
@@ -121,23 +114,18 @@ def sendRequest(server, method, url, body, headers):
         return None
         raise
 
-def listen(server, method, url, body, headers, iterations, debug):
+# Listen for a response after making a request to the given URL. Syntax matches the
+# sendRequest function with the exception of an additional parameter, iterations,
+# which states how many times the listener will reactivate after receiving a reply.
+# If this number is 0 or below, the listener will run forever.
+def listen(server, method, url, body, headers, iterations):
     global listener
     if listener and not listener.stopped():
-        if debug:
-            print 'stopping listener'
         listener.stop()
         listener = None
     else:
         if listener:
             listener.stop()
-        if debug:
-            if iterations > 1:
-                print 'listening', iterations, 'times (stop by typing listen again)'
-            elif iterations == 1:
-                print 'listening', iterations, 'time (stop by typing listen again)'
-            else:
-                print 'listening forever (stop by typing listen again)'
         conn = httplib.HTTPConnection(server)
         listener = Listener.Listener(conn, method, url, body, headers, iterations)
         listener.start()
@@ -284,6 +272,7 @@ def makeMove(server, details):
 # and moves will intermittently show up in the console window / graphic window, when
 # that is added. The listener could be stopped by using the stopobserve command.
 def observeGame(server, details):
+    # TODO: find a way to stop a listener that has been set to listen forever
     return
 
 def deleteGame(server, details):

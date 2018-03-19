@@ -1,10 +1,8 @@
-import sys, time, threading
 from rbc_modules import Listener
 
 import httplib, errno
 
 listener = None
-gameUid = ''
 
 def main():
 
@@ -82,6 +80,10 @@ def sendRequest(server, method, url, body, headers):
         return None
         raise
 
+# Listen for a response after making a request to the given URL. Syntax matches the
+# sendRequest function with the exception of an additional parameter, iterations,
+# which states how many times the listener will reactivate after receiving a reply.
+# If this number is 0 or below, the listener will run forever.
 def listen(server, method, url, body, headers, iterations):
     global listener
     if listener and not listener.stopped():
