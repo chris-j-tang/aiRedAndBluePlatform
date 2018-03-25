@@ -6,17 +6,16 @@ import RB_Graph as G
 import random
 import copy
 
-#TODO: need to fix return type from node to string of number
-#MiniMax has to be in function type not class type
+#TODO: Fix Minimax
 
 """
-" This is the file one needs to modify.
-" One will be able to write there own algorithm under costom_algorithem.
-" Feel free to make multiple costume Algorithm.
-" Parameter for the algorithem are graph and player.
-" Graph is RB_Graph format and player is in string.
-" Player will be either "red" or "blue"
-" Return type has to be node of graph.
+" This is the file to implement your algorithms.
+" One will be able to write their own algorithms under custom_algorithm.
+" Feel free to make multiple custom Algorithms.
+" Parameter for the algorithms are graph and player.
+" Graph is the RB_Graph class and player is a string.
+" player will be either "red" or "blue"
+" Return type has to be a string containing the number of the chosen node.
 " If there are multiple Algorithms that has been added, 
 " run" function under "computer" class must be modified accordingly.
 """
@@ -191,13 +190,16 @@ class Minimax():
 
 def CustomAlgorithm(g,player):
     """
-    colors are dictionary of dictionary.
-    Key is a node number and value is a color of the node.
-    You can access your color by self.getColor()
+    gamestate is the dictionary of dictionary.
+    The key is a node number and the value is a color of the node.
+    valid_moves contains the nodes that are available to be chosen.
+    player contains a string of your color:(red or blue)
     return string of integer by using str() function
-    check the given algorithms (random,greedy) for references..
+    check the given algorithms (random,greedy) for references.
+    check the documentation for networkx version 2.1 for graph functions.
     """
-    colors = nx.get_node_attributes(g.get_graph(),'color')
+    gamestate = nx.get_node_attributes(g.get_graph(),'color')
+    valid_moves. = g.getValidMoves()
     #Todo: Write your code here!
     return 
 """
@@ -259,20 +261,17 @@ class computer(object):
                     self.algorithm = MinimaxAlgorithm
                 # elif select == 5 :
                 #     self.algorithm = CustomAlgorithm
+                #elif select == 6 :
+                #    self.algorithm = CustomAlgorithm2
+                #elif select == 7 :
+                #    self.algorithm = CustomAlgorithm3
+                #elif select == 8 :
+                #    self.algorithm = CustomAlgorithm4
+                #elif select == 9 :
+                #    self.algorithm = CustomAlgorithm5
                 else:
                     valid_choice = False
                     print("Invalid choice of algorithm")
-            """
-            YOU MAY NEED TO ADD MORE elif statement
-            """
-            #elif select == 6 :
-            #    self.algorithm = CustomAlgorithm2
-            #elif select == 7 :
-            #    self.algorithm = CustomAlgorithm3
-            #elif select == 8 :
-            #    self.algorithm = CustomAlgorithm4
-            #elif select == 9 :
-            #    self.algorithm = CustomAlgorithm5
             self.makeSelection = True
             return self.algorithm(graph,color)
         
