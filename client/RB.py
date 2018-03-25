@@ -2,7 +2,7 @@
 <Red and Blue game>
 Author: Jihoo Brian Park, William Hsu
 Class: RB Class (main)
-Discription: This class keeps points,time, turn, and determins winner of the game.
+Description: This class keeps points, time, turn, and determines the winner of the game.
 color of the player will be determined randomly.
 starting player is always red.
 """
@@ -223,7 +223,7 @@ if __name__=="__main__":
 
 
     if args.f:
-        graph_data = json.load(open("graph.json"))
+        graph_data = json.load(open(args.f))
         game = RBGame(len(graph_data["graph"]),graph_data["rounds"], graph_data["time"])
         game.point[0],game.point[1] = game.G.readGraph(graph_data)
         game.rand_start()
