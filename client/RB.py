@@ -1,6 +1,6 @@
 """
 <Red and Blue game>
-Author: Jihoo Brian Park
+Author: Jihoo Brian Park, William Hsu
 Class: RB Class (main)
 Discription: This class keeps points,time, turn, and determins winner of the game.
 color of the player will be determined randomly.
@@ -188,7 +188,7 @@ class RBGame(object):
                 print self.turn_player + " lost"
                 self.G.printGraph()
                 return False
-        print "RESULT  of the game:"
+        print "RESULTS of the game:"
         print "                    Red: "+ str(self.point[0])
         print "                    Blue: "+ str(self.point[1])
         if self.point[0]>self.point[1]:
@@ -237,7 +237,6 @@ if __name__=="__main__":
             game.setRound(args.r)
         if args.t:
             game.setTime(args.t)
-    print(game.assigned)
     if args.g:
         game.setGUI(args.g)
     if args.p:
