@@ -6,7 +6,7 @@
 	<title>Red & Blue Game - Join Game</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="style/style.css" >
-	<script src="scripts/jquery-1.12.1.js"></script>
+	<script src="https://code.jquery.com/jquery-1.12.1.min.js" integrity="sha256-I1nTg78tSrZev3kjvfdM5A5Ak/blglGzlaZANLPDl3I=" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-	
+
 	$("body").keypress(function(e) {
 		if (e.which == 13) {
 			join();
@@ -30,7 +30,7 @@
 		}
 	});
 	</script>
-	
+
 	<script type="text/javascript">
 		function join() {
 			sessionStorage.setItem('loc', "/game/" + document.getElementById("id").value);
@@ -39,6 +39,6 @@
 			window.location.replace("PlayGame.html");
 		}
 	</script>
-	
+
 </body>
 </html>

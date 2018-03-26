@@ -6,34 +6,34 @@
 	<title>Red & Blue Game - Play Game</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="style/style.css">
-	<link rel="stylesheet" href="style/vis.min.css">
-	<script src="scripts/jquery-1.12.1.js"></script>
-	<script src="scripts/vis.min.js"></script>
-	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+	<script src="https://code.jquery.com/jquery-1.12.1.min.js" integrity="sha256-I1nTg78tSrZev3kjvfdM5A5Ak/blglGzlaZANLPDl3I=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+
 </head>
 
 <body>
 	<div id="scoreBar">
-		<div id="redScore">	
+		<div id="redScore">
 			<p id="scoreBarText">Score</p>
 			<p id="redScoreBarText">-</p>
 		</div>
-		
-		<div id="blueScore">	
+
+		<div id="blueScore">
 			<p id="scoreBarText">Score</p>
 			<p id="blueScoreBarText">-</p>
 		</div>
-	
-		<div id="yourGameSession">	
+
+		<div id="yourGameSession">
 			<p id="timeTextValue">-</p>
 			<i id="arrowLeft"></i>
 			<p id="roundTextValue">- out -</p>
 			<i id="arrowRight"></i>
 		</div>
 	</div>
-	
+
 	<div id="mynetwork"></div>
-	
+
 </body>
 
 <script type="text/javascript">
@@ -76,15 +76,15 @@ if(loc != undefined && act != undefined) {
 			timeLimit = 100;
 			curTime = 100;
 			rounds = data.static.rounds;
-			
+
 			nodeCount = data.static.graph.length;
 			setRedScore(redScore)
 			setBlueScore(blueScore)
 			setRound(data.curRound)
 			setTurn(data.turn);
-			
+
 			makeGraph(data);
-			
+
 			observe();
 		}, 'json');
 	}
@@ -102,11 +102,11 @@ if(loc != undefined && act != undefined) {
 			setBlueScore(blueScore)
 			setRound(curRound)
 			setTurn(turn);
-			
+
 			makeGraph(data);
-			
+
 			startGame();
-			
+
 			startTimer();
 		}, 'json');
 	}
@@ -219,16 +219,16 @@ function observe() {
 			//console.log(data);
 			//console.log(status);
 			//console.log(xhr);
-			
+
 			var diff = makeDiff(data);
 			updateGraph(diff);
-			
+
 			curTime = data.static.time - (new Date().getTime() - data.lastUpdate);
 			turn = data.turn % 2 + 1;
-			
+
 			setTime(curTime);
 			setTurn(turn);
-			
+
 			if(!data.isDone) {
 				observe();
 			}
@@ -242,7 +242,7 @@ function requestMove() {
 		console.log(data);
 		console.log(status);
 		console.log(xhr);
-		
+
 		//Update Graph
 		if(data.delta != undefined) {
 			updateGraph(data);
@@ -261,7 +261,7 @@ function submitMove(nodeId) {
 		console.log(data);
 		console.log(status);
 		console.log(xhr);
-		
+
 		//Update Graph
 		updateGraph(data);
 		turn = turn == 1 ? 2 : 1;
@@ -278,7 +278,7 @@ function startTimer() {
 		setTime(curTime);
 		curTime -= 100;
 	},100);
-	
+
 	timer = setTimeout(function() {
 		clearInterval(updateTime);
 		setTime(curTime);
@@ -351,19 +351,19 @@ function makeGraph(state) {
 	}
 	network.on("hoverNode", function (params) {
 		var nodeId = params.node;
-		
+
 		network.body.nodes[nodeId].setOptions(nodes[nodeId].team == 0 ? noHoverColor : nodes[nodeId].team == 1 ? redHoverColor : blueHoverColor);
 		hoverNodes.push(nodeId);
-		
+
 		var selectedEdges = network.getConnectedEdges(nodeId);
-		
+
 		for(var i = 0; i < selectedEdges.length; i++) {
 			var edgeId = selectedEdges[i];
 			var adjId = network.body.edges[edgeId].to.id != nodeId ? network.body.edges[edgeId].to.id : network.body.edges[edgeId].from.id;
 			var n = network.body.nodes[adjId];
-			
+
 			n.setOptions(nodes[adjId].team == 0 ? noHoverColor : nodes[adjId].team == 1 ? redHoverColor : blueHoverColor);
-			
+
 			hoverNodes.push(adjId);
 			hoverEdges.push(edgeId);
 		}
@@ -413,7 +413,7 @@ function updateGraph(diff) {
 	curRound = diff.round + 1;
 	redScore = diff.scores[0];
 	blueScore = diff.scores[1];
-	
+
 	if(diff.delta != undefined) {
 		for(var i = 0; i < diff.delta.length; i++) {
 			var nodeId = diff.delta[i];
@@ -425,7 +425,7 @@ function updateGraph(diff) {
 			network.redraw();
 		}
 	}
-	
+
 	setRedScore(redScore);
 	setBlueScore(blueScore);
 	setRound(curRound);
@@ -437,7 +437,7 @@ function makeDiff(state) {
 		scores: state.scores,
 		delta: []
 	};
-		
+
 	for(var i = 0; i < state.colors.length; i++) {
 		var c = state.colors[i];
 		if(nodes[i].team != c) {

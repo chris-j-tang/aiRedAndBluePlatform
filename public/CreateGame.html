@@ -6,7 +6,7 @@
 	<title>Red & Blue Game - Create Game</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="style/style.css" >
-	<script src="scripts/jquery-1.12.1.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.1.min.js" integrity="sha256-I1nTg78tSrZev3kjvfdM5A5Ak/blglGzlaZANLPDl3I=" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -21,7 +21,7 @@
 			<input type="number" placeholder="Time Limit" id="timeLimit" name="timeLimit" required="true" class="timeLimitInput" maxlength="6" style="text-align:center;" required></input>
 			<input type="number" placeholder="Probability" id="prob" name="prob" required="false" class="prob" style="text-align:center;" required></input>
 			<input type="number" placeholder="Seed" id="seed" name="seed" required="false" class="seed" style="text-align:center;" required></input>
-			<input type="text" placeholder="Player Name" id="playerName" name="playerName" required="true" class="playerName" style="text-align:center;"></input>	
+			<input type="text" placeholder="Player Name" id="playerName" name="playerName" required="true" class="playerName" style="text-align:center;"></input>
 			<input type="button" class="myButton" id="createGameButton" value="Create Game" maxlength="20" onclick="connect()" ></input>
 		</div>
 	</div>
@@ -35,7 +35,7 @@
 	</script>
 </body>
 
-<script> 
+<script>
 	function connect() {
 		console.log('Attempting to create a game...');
 		var gameData  = {
@@ -50,7 +50,7 @@
 		if(document.getElementById("seed").value != "") {
 			gameData.seed = document.getElementById("seed").value;
 		}
-		
+
 		console.log(gameData);
 		$.post("http://localhost:4040/game", gameData, function(data, status, xhr){
 			console.log("success!!");
@@ -62,7 +62,7 @@
 			sessionStorage.setItem('loc', xhr.getResponseHeader('location'));
 			sessionStorage.setItem('action', 'join');
 			sessionStorage.setItem('playerName', gameData.playerName);
-			
+
 			window.location.replace("PlayGame.html");
 		}).fail(function(xhr, status, error) {
 			console.log("Error");
