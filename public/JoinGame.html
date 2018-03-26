@@ -6,8 +6,7 @@
 	<title>Red & Blue Game - Join Game</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="style/style.css" >
-	<script src="/socket.io/socket.io.js"></script>
-	<script src="jquery-1.12.1.js"></script>
+	<script src="scripts/jquery-1.12.1.js"></script>
 </head>
 
 <body>
@@ -17,7 +16,7 @@
 	</div>
 	<div class="centered">
 		<div class="centerBlock">
-			<input type="text" placeholder="Game Session ID" id="id" name="sessionid" class="inputSession" maxlength="8" style="text-align:center;"></input>
+			<input type="text" placeholder="Game Session ID" id="id" name="sessionid" class="inputSession" style="text-align:center;"></input>
 			<input type="text" placeholder="Player Name" id="playerName" name="playerName" required="true" class="playerName" style="text-align:center;"></input>
 			<input type="button" class="myButton" value="Join Game" onClick="join()" ></input>
 		</div>
@@ -34,9 +33,10 @@
 	
 	<script type="text/javascript">
 		function join() {
-			sessionStorage.setItem('sessionID', document.getElementById("id").value);
+			sessionStorage.setItem('loc', "/game/" + document.getElementById("id").value);
+			sessionStorage.setItem('action', 'join');
 			sessionStorage.setItem('playerName', document.getElementById("playerName").value);
-			
+			window.location.replace("PlayGame.html");
 		}
 	</script>
 	

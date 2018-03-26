@@ -6,8 +6,7 @@
 	<title>Red & Blue Game - Create Game</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="style/style.css" >
-	<script src="/socket.io/socket.io.js"></script>
-	<script src="jquery-1.12.1.js"></script>
+	<script src="scripts/jquery-1.12.1.js"></script>
 </head>
 
 <body>
@@ -19,7 +18,9 @@
 		<div class="centerBlock">
 			<input type="number" placeholder="Node Count" id="nodeCount" name="nodeCount" required="true" class="nodeCountInput" maxlength="4" style="text-align:center;" required></input>
 			<input type="number" placeholder="Round Count" id="roundCount" name="roundCount" required="true" class="roundCountInput" maxlength="2" style="text-align:center;" required></input>
-			<input type="number" placeholder="Time Limit" id="timeLimit" name="timeLimit" required="true" class="timeLimitInput" maxlength="4" style="text-align:center;" required></input>
+			<input type="number" placeholder="Time Limit" id="timeLimit" name="timeLimit" required="true" class="timeLimitInput" maxlength="6" style="text-align:center;" required></input>
+			<input type="number" placeholder="Probability" id="prob" name="prob" required="false" class="prob" style="text-align:center;" required></input>
+			<input type="number" placeholder="Seed" id="seed" name="seed" required="false" class="seed" style="text-align:center;" required></input>
 			<input type="text" placeholder="Player Name" id="playerName" name="playerName" required="true" class="playerName" style="text-align:center;"></input>	
 			<input type="button" class="myButton" id="createGameButton" value="Create Game" maxlength="20" onclick="connect()" ></input>
 		</div>
@@ -37,14 +38,37 @@
 <script> 
 	function connect() {
 		console.log('Attempting to create a game...');
-		var data  = {
-			nodeCount: document.getElementById("nodeCount").value,
-			roundCount: document.getElementById("roundCount").value,
-			timeLimit: document.getElementById("timeLimit").value,
-			playerName: document.getElementById("playerName").value,
-			sessionID: "",
-			socketID: "null"
+		var gameData  = {
+			"nodes": parseInt(document.getElementById("nodeCount").value),
+			"rounds": parseInt(document.getElementById("roundCount").value),
+			"time": parseInt(document.getElementById("timeLimit").value),
+			"playerName": document.getElementById("playerName").value
 		};
+		if(document.getElementById("prob").value != "") {
+			gameData.prob = document.getElementById("prob").value;
+		}
+		if(document.getElementById("seed").value != "") {
+			gameData.seed = document.getElementById("seed").value;
+		}
+		
+		console.log(gameData);
+		$.post("http://localhost:4040/game", gameData, function(data, status, xhr){
+			console.log("success!!");
+			console.log(data);
+			console.log(typeof data);
+			console.log(status);
+			console.log(xhr);
+			console.log(xhr.getResponseHeader('location'));
+			sessionStorage.setItem('loc', xhr.getResponseHeader('location'));
+			sessionStorage.setItem('action', 'join');
+			sessionStorage.setItem('playerName', gameData.playerName);
+			
+			window.location.replace("PlayGame.html");
+		}).fail(function(xhr, status, error) {
+			console.log("Error");
+			console.log(status);
+			console.log(xhr);
+		});
 	}
 </script>
 </html>

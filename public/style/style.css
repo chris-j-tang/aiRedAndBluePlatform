@@ -1,13 +1,15 @@
 #mynetwork {
-	height: 600px;
-	border: 1px solid lightgray;
+	margin: 10px;
+	height: 650px;
+	border: 1px solid gray;
+	background-color: #EEEEEE;
 }
 
 .intro-btn, #result, #scoreBar {
 	text-align: center;
 	font-size: 40px;
 	background-color: lightgray;
-	padding: 20px 10px 20px 10px;
+	padding: 5px 10px 0px 10px;
 	margin-top: 20px;
 	color: white;
 	border-radius: 10px;
@@ -67,7 +69,7 @@
 	width: 40%;
     display: block;
 	background: #c91414;
-	padding: 5px 10px 0px 10px;
+	padding: 5px 10px 10px 10px;
 	border-radius: 10px;
 }
 
@@ -77,7 +79,7 @@
 	width: 40%;
     display: block;
 	background: #3227ce;
-	padding: 5px 10px 0px 10px;
+	padding: 5px 10px 10px 10px;
 	border-radius: 10px;
 }
 
@@ -87,9 +89,9 @@
 	margin: 0px;
 }
 
-#scoreBarText {
+#scoreBarText, #roundText {
 	font-size: 20px;
-	color: darkgray;
+	color: black;
 	text-align: center;
 	margin: 0px;
 }
@@ -99,6 +101,31 @@
 	color: white;
 	text-align: center;
 	margin: 0px;
+}
+
+#roundTextValue {
+	font-size: 16px;
+	color: white;
+	text-align: center;
+	margin: 0px;
+	display: inline;
+}
+
+i {
+    border: solid black;
+    border-width: 0 6px 6px 0;
+    display: inline-block;
+    padding: 6px;
+}
+
+#arrowRight {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+#arrowLeft {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
 }
 
 .session {
@@ -136,7 +163,7 @@
 	background-color: rgba(175, 25, 0, 0.9);
 }
 
-.nodeCountInput, .roundCountInput, .timeLimitInput, .playerName, .inputSession {
+.nodeCountInput, .roundCountInput, .timeLimitInput, .playerName, .prob, .seed, .inputSession {
 	padding: 20px;
 	margin-top: 20px;
 	margin-left: 5%;

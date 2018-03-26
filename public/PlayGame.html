@@ -16,17 +16,19 @@
 	<div id="scoreBar">
 		<div id="redScore">	
 			<p id="scoreBarText">Score</p>
-			<p id="redScoreBarText">0</p>
+			<p id="redScoreBarText">-</p>
 		</div>
 		
 		<div id="blueScore">	
 			<p id="scoreBarText">Score</p>
-			<p id="blueScoreBarText">0</p>
+			<p id="blueScoreBarText">-</p>
 		</div>
 	
 		<div id="yourGameSession">	
-			<p id="scoreBarText">Time</p>
-			<p id="timeTextValue">0</p>
+			<p id="timeTextValue">-</p>
+			<i id="arrowLeft"></i>
+			<p id="roundTextValue">- out -</p>
+			<i id="arrowRight"></i>
 		</div>
 	</div>
 	
@@ -35,43 +37,238 @@
 </body>
 
 <script type="text/javascript">
+
+var loc = sessionStorage.getItem('loc');
+var act = sessionStorage.getItem('action');
+var player = {
+	"id" : sessionStorage.getItem("playerName")
+};
+
+console.log(loc);
+
 var redScore = 0;
 var blueScore = 0
-var timeLimit = 5 * 1000;
-var curTime = timeLimit;
-var nodeCount = 50;
-var nodes = null;
-var turn = 0;
+var timeLimit = 0;
+var rounds = 0;
+var curRound = 1;
+var curTime = 0;
+var nodeCount = 0;
+var turn = 1;
 
-var noColor = {
-	border: '#444444',
-	background: '#CCCCCC',
-	highlight:
+var nodes = null;
+var hoverNodes = [];
+var hoverEdges = [];
+
+var updateTime;
+var timer;
+
+var visNodes;
+var visEdges;
+var data;
+var network;
+
+if(loc != undefined && act != undefined) {
+	if(act == "spectate") {
+		$.get("http://localhost:4040" + loc, function(data, status, xhr) {
+			console.log(data);
+			console.log(status);
+			console.log(xhr);
+			timeLimit = 100;
+			curTime = 100;
+			rounds = data.static.rounds;
+			
+			nodeCount = data.static.graph.length;
+			setRedScore(redScore)
+			setBlueScore(blueScore)
+			setRound(data.curRound)
+			setTurn(data.turn);
+			
+			makeGraph(data);
+			
+			observe();
+		}, 'json');
+	}
+	else if(act == "join") {
+		$.post("http://localhost:4040" + loc, player, function(data, status, xhr) {
+			console.log(data);
+			console.log(status);
+			console.log(xhr);
+			timeLimit = data.static.time;
+			curTime = data.static.time;
+			rounds = data.static.rounds;
+			//turn = data.turn;
+			nodeCount = data.static.graph.length;
+			setRedScore(redScore)
+			setBlueScore(blueScore)
+			setRound(curRound)
+			setTurn(turn);
+			
+			makeGraph(data);
+			
+			startGame();
+			
+			startTimer();
+		}, 'json');
+	}
+}
+
+var noHoverColor = {
+	color:
 	{
 		border: '#111111',
 		background: '#999999'
 	}
 };
 
+var noColor = {
+	color: {
+		border: '#444444',
+		background: '#CCCCCC',
+		hover: {
+			border: noHoverColor.color.border,
+			background: noHoverColor.color.background
+		}
+	}
+};
+
+var redHoverColor = {
+	color:
+	{
+		border: '#aa2020',
+		background: '#bc2525'
+	}
+};
+
 var redColor = {
 	color:
 	{
-		border: '#000000',
-		background: '#FF0000'
+		border: '#dd2e2e',
+		background: '#e83a3a',
+		hover: {
+			border: redHoverColor.color.border,
+			background: redHoverColor.color.background
+		}
+	}
+};
+
+var blueHoverColor = {
+	color:
+	{
+		border: '#2155a8',
+		background: '#2f65bc'
 	}
 };
 
 var blueColor = {
 	color:
 	{
-		border: '#000000',
-		background: '#FF0000'
+		border: '#306ccc',
+		background: '#4286f4',
+		hover: {
+			border: blueHoverColor.color.border,
+			background: blueHoverColor.color.background
+		}
 	}
 };
 
-var updateTime;
-var timer;
-startTimer();
+// create a network
+var container = document.getElementById('mynetwork');
+
+var options = {
+	manipulation: false,
+	interaction:
+	{
+		dragNodes: false,
+		dragView: false,
+		hover: true
+	},
+	layout:
+	{
+		randomSeed: 0
+	},
+	edges: {
+		hoverWidth: 0.0,
+		chosen:  {
+			edge: function(values, id, selected, hovering) {
+					values.width = 3;
+				  }
+		},
+		color: {
+			inherit: false
+		},
+		smooth: {
+			type: "discrete",
+			forceDirection: "none",
+			roundness: 0
+		}
+	},
+	nodes: {
+		color: noColor.color
+	}
+};
+
+function startGame() {
+	requestMove();
+}
+
+var observeTimer;
+function observe() {
+	clearTimeout(observeTimer);
+	observeTimer = setTimeout(function() {
+		$.get("http://localhost:4040" + loc, function(data, status, xhr) {
+			//console.log(data);
+			//console.log(status);
+			//console.log(xhr);
+			
+			var diff = makeDiff(data);
+			updateGraph(diff);
+			
+			curTime = data.static.time - (new Date().getTime() - data.lastUpdate);
+			turn = data.turn % 2 + 1;
+			
+			setTime(curTime);
+			setTurn(turn);
+			
+			if(!data.isDone) {
+				observe();
+			}
+		}, 'json');
+	}, timeLimit);
+}
+
+function requestMove() {
+	startTimer();
+	$.get("http://localhost:4040" + loc + "/" + player.id, function(data, status, xhr) {
+		console.log(data);
+		console.log(status);
+		console.log(xhr);
+		
+		//Update Graph
+		if(data.delta != undefined) {
+			updateGraph(data);
+			turn = turn == 1 ? 2 : 1;
+		}
+		setTurn(turn);
+		startTimer();
+	}, 'json');
+}
+
+function submitMove(nodeId) {
+	var node = {
+		"node" : nodeId
+	};
+	$.post("http://localhost:4040" + loc + "/" + player.id, node, function(data, status, xhr) {
+		console.log(data);
+		console.log(status);
+		console.log(xhr);
+		
+		//Update Graph
+		updateGraph(data);
+		turn = turn == 1 ? 2 : 1;
+		setTurn(turn);
+		requestMove();
+	}, 'json');
+}
 
 function startTimer() {
 	clearInterval(updateTime);
@@ -97,11 +294,30 @@ function setBlueScore(score) {
 }
 
 function setTime(time) {
-	var timeStr = (time / 1000).toString();
-	if(time % 1000 == 0) {
-		timeStr += ".0";
-	}
+	var timeStr = Math.round(time / 1000).toString();
+	timeStr += "." + (Math.round((time / 100)) % 10).toString();
 	document.getElementById("timeTextValue").innerHTML = timeStr;
+}
+
+function setRound(round) {
+	document.getElementById("roundTextValue").innerHTML = round + " out of " + rounds;
+}
+
+function setTurn(turn) {
+	var redTurn = document.getElementById("arrowLeft");
+	var blueTurn = document.getElementById("arrowRight");
+	if(turn == 1) {
+		blueTurn.style.visibility = 'hidden';
+		redTurn.style.visibility = 'visible';
+	}
+	else if(turn == 2) {
+		blueTurn.style.visibility = 'visible';
+		redTurn.style.visibility = 'hidden';
+	}
+	else {
+		redTurn.style.visibility = 'hidden';
+		blueTurn.style.visibility = 'hidden';
+	}
 }
 
 var Node = function(id) {
@@ -111,186 +327,126 @@ var Node = function(id) {
 	this.borderWidthSelected = 3;
 	this.color = noColor;
 	this.font = {
-		size: 24
+		size: 16
 	};
 	this.team = 0;
 }
 
-nodes = createNodes(nodeCount);
-var visNodes = new vis.DataSet(nodes);
-
-function createNodes(num) {
-	var nodes = [];
-	for(var i = 1; i <= num; i++)
-	{
-		var n = new Node(i);
-		nodes.push(n);
-	}
-	return nodes;
-}
-
-function createEdges(num, p) {
-	var edges = [];
-	for(var i = 1; i <= num; i++) {
-		for(var k = 1; k <= num; k++) {
-			if(i != k) {
-				var rand = Math.random();
-				if(rand < p) {
-					var e = {from: i, to: k};
-					edges.push(e);
-				}
-			}
-		}
-	}
-	console.log(edges.length);
-	return edges;
-}
-
-// create an array with edges
-var visEdges = new vis.DataSet(createEdges(nodeCount, 0.03));
-
-// create a network
-var container = document.getElementById('mynetwork');
-
-// provide the data in the vis format
-var data = {
-	nodes: visNodes,
-	edges: visEdges
-};
-
-var options = {
-	manipulation: false,
-	interaction:
-	{
-		dragNodes: false,
-		dragView: false
-	},
-	layout:
-	{
-		randomSeed: 0
-	}
-};
-console.log(data);
-// initialize your network!
-var network = new vis.Network(container, data, options);
-
-network.on("selectNode", function (params) {
-	var selectedNodeId = params.nodes[0];
-	var node = network.body.nodes[selectedNodeId];
-	if(nodes[selectedNodeId - 1].team == 0)
-	{
-		if(turn == 1)
-		{
-			node.setOptions(
-			  {
-				color:
-				  {
-					border: '#000000',
-					background: '#FF0000'
-				  }
-				});
-			nodes[selectedNodeId - 1].team = 1;
-			redScore++;
-			for(var i = 0; i < params.edges.length; i++)
-			{
-				var edgeId = params.edges[i];
-				var adjId = network.body.edges[edgeId].to.id != selectedNodeId ? network.body.edges[edgeId].to.id : network.body.edges[edgeId].from.id;
-				var n = network.body.nodes[adjId];
-				n.setOptions(
-				  {
-					color:
-					  {
-						border: '#000000',
-						background: '#FF0000'
-					  }
-					});
-					if(nodes[adjId - 1].team == 0)
-					{
-						redScore++;
-					}
-					else if(nodes[adjId - 1].team == 2)
-					{
-						blueScore--;
-						redScore++;
-					}
-				nodes[adjId - 1].team = 1;
-			}
-			setRedScore(redScore);
-			setBlueScore(blueScore);
-			turn = 2;
-		}
-		else
-		{
-			node.setOptions(
-			  {
-				color:
-				  {
-					border: '#000000',
-					background: '#0000FF'
-				  }
-				});
-			nodes[selectedNodeId - 1].team = 2;
-			blueScore++;
-			for(var i = 0; i < params.edges.length; i++)
-			{
-				var edgeId = params.edges[i];
-				var adjId = network.body.edges[edgeId].to.id != selectedNodeId ? network.body.edges[edgeId].to.id : network.body.edges[edgeId].from.id;
-				var n = network.body.nodes[adjId];
-				n.setOptions(
-				  {
-					color:
-					  {
-						border: '#000000',
-						background: '#0000FF'
-					  }
-					});
-					if(nodes[adjId - 1].team == 0)
-					{
-						blueScore++;
-					}
-					else if(nodes[adjId - 1].team == 1)
-					{
-						redScore--;
-						blueScore++;
-					}
-				nodes[adjId - 1].team = 2;
-			}
-			setBlueScore(blueScore);
-			setRedScore(redScore);
-			turn = 1;
-		}
-		startTimer();
-	}
-	network.unselectAll();
-});
-  
-
-document.getElementById("mynetwork").onclick = function (event)
-{
-	console.log(network.getSelectedNodes());
-	//nodes[network.getSelectedNodes()[0] - 1].color.background = '#FF0000';
-	//network = new vis.Network(container, data, options);
-};
-
-function setRound(round) {
-	
-}
-
-subscribe: function(callback) {
-	var longPoll = function() {
-		$.ajax({
-			method: 'GET', 
-			success: function(data) {
-				callback(data);
-			},
-			complete: function() {
-				longPoll();
-			},
-			timeout: 30000
-		});
+function makeGraph(state) {
+	console.log("Make Graph");
+	nodes = createNodes(state);
+	visNodes = new vis.DataSet(nodes);
+	visEdges = new vis.DataSet(createEdges(state.static.graph));
+	data = {
+		nodes: visNodes,
+		edges: visEdges
 	};
-	longPoll();
+	network = new vis.Network(container, data, options);
+	if(act == 'join') {
+		network.on("click", function (params) {
+			var selectedNodeId = params.nodes[0];
+			submitMove(selectedNodeId);
+			network.unselectAll();
+		});
+	}
+	network.on("hoverNode", function (params) {
+		var nodeId = params.node;
+		
+		network.body.nodes[nodeId].setOptions(nodes[nodeId].team == 0 ? noHoverColor : nodes[nodeId].team == 1 ? redHoverColor : blueHoverColor);
+		hoverNodes.push(nodeId);
+		
+		var selectedEdges = network.getConnectedEdges(nodeId);
+		
+		for(var i = 0; i < selectedEdges.length; i++) {
+			var edgeId = selectedEdges[i];
+			var adjId = network.body.edges[edgeId].to.id != nodeId ? network.body.edges[edgeId].to.id : network.body.edges[edgeId].from.id;
+			var n = network.body.nodes[adjId];
+			
+			n.setOptions(nodes[adjId].team == 0 ? noHoverColor : nodes[adjId].team == 1 ? redHoverColor : blueHoverColor);
+			
+			hoverNodes.push(adjId);
+			hoverEdges.push(edgeId);
+		}
+	});
+	network.on("blurNode", function (params) {
+		for(var i = 0; i < hoverNodes.length; i++) {
+			var nodeId = hoverNodes[i];
+			var n = network.body.nodes[nodeId];
+			n.setOptions(nodes[nodeId].team == 0 ? noColor : nodes[nodeId].team == 1 ? redColor : blueColor);
+		}
+		hoverNodes.length = 0;
+		hoverEdges.length = 0;
+	});
+
+	/*
+	network.on("hoverEdge", function (params) {
+		var x = event.clientX - $('#mynetwork').offset().left;
+		var y = event.clientY - $('#mynetwork').offset().top;
+		console.log(x.toString() + ", " + y.toString());
+		console.log(network.getSelectedEdges());
+	});*/
 }
+
+function createNodes(state) {
+	var nodeList = [];
+	for(var i = 0; i < state.static.graph.length; i++) {
+		var n = new Node(i);
+		n.color = state.colors[i] == 0 ? noColor.color : state.colors[i] == 1 ? redColor.color : blueColor.color;
+		nodeList.push(n);
+	}
+	return nodeList;
+}
+
+function createEdges(graph) {
+	var edgeList = [];
+	for(var i = 0; i < graph.length; i++) {
+		var n = graph[i];
+		for(var k = 0; k < n.length; k++) {
+			var e = {from: i, to: n[k]};
+			edgeList.push(e);
+		}
+	}
+	return edgeList;
+}
+
+function updateGraph(diff) {
+	curRound = diff.round + 1;
+	redScore = diff.scores[0];
+	blueScore = diff.scores[1];
+	
+	if(diff.delta != undefined) {
+		for(var i = 0; i < diff.delta.length; i++) {
+			var nodeId = diff.delta[i];
+			var n = network.body.nodes[nodeId];
+			n.setOptions(turn == 1 ? redColor : blueColor);
+			nodes[nodeId].team = turn;
+		}
+		if(diff.delta.length > 0) {
+			network.redraw();
+		}
+	}
+	
+	setRedScore(redScore);
+	setBlueScore(blueScore);
+	setRound(curRound);
+}
+
+function makeDiff(state) {
+	var diff = {
+		round: state.curRound,
+		scores: state.scores,
+		delta: []
+	};
+		
+	for(var i = 0; i < state.colors.length; i++) {
+		var c = state.colors[i];
+		if(nodes[i].team != c) {
+			diff.delta.push(i);
+		}
+	}
+	return diff;
+}
+
 </script>
 
 <script type="text/javascript">
