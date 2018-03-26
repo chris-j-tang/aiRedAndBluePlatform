@@ -11,7 +11,6 @@ starting player is always red.
 javascript to networkx - later.
 argument to set which algo to use
 need to thread timeout function
-Question: if times up, is it autometic loss?
 """
 import RB_Graph as G
 import RB_Agent as Agent
@@ -22,9 +21,6 @@ import random
 import argparse
 
 """
-Make coin flip optional
-Setting customized graph. maybe use json format to read?
-Documentation(README)
 server communication: 
 1. server will only send graph at the beginning.
 2. move will be updated on the server and client machine.
