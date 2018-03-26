@@ -6,16 +6,16 @@ import RB_Graph as G
 import random
 import copy
 
-#TODO: Fix Minimax
+
 
 """
-" This is the file to implement your algorithms.
-" One will be able to write their own algorithms under custom_algorithm.
-" Feel free to make multiple custom Algorithms.
-" Parameter for the algorithms are graph and player.
-" Graph is the RB_Graph class and player is a string.
-" player will be either "red" or "blue"
-" Return type has to be a string containing the number of the chosen node.
+" This is the file one needs to modify.
+" One will be able to write there own algorithm under costom_algorithem.
+" Feel free to make multiple costume Algorithm.
+" Parameter for the algorithem are graph and player.
+" Graph is RB_Graph format and player is in string.
+" Player will be either "red" or "blue"
+" Return type has to be node of graph.
 " If there are multiple Algorithms that has been added, 
 " run" function under "computer" class must be modified accordingly.
 """
@@ -76,7 +76,7 @@ def GreedyPointsAlgorithm(g, player):
 Minimax algorithm
 """
 def MinimaxAlgorithm(g, player):
-    m = Minimax(1)
+    m = Minimax(2)
     return str(m.getAction(g,player))
 
 class Minimax():
@@ -90,6 +90,8 @@ class Minimax():
     def getAction(self, g, player):
         current_depth = 0
         current_agent = 0
+        alpha = -float("inf")
+        beta = float("inf")
         value = -float('inf')
         self.player = player
         if player == 'red':
@@ -110,18 +112,22 @@ class Minimax():
         gameinfo = [gamestate, valid_moves, current_agent]
         for move in valid_moves:
             #print(str(move))
-            new_value = self.value(self.generateSuccessor(move,gameinfo), current_agent + 1, current_depth)
-            #print(str(move) + " move and value " + str(new_value))
+            new_value = self.value(self.generateSuccessor(move,gameinfo), current_agent + 1, current_depth, alpha, beta)
+            #print(self.player + " : " + str(move) + " move and value " + str(new_value))
             if value < new_value:
                 chosen_moves = []
                 chosen_moves.append(move)
                 value = new_value
             elif value == new_value:
                 chosen_moves.append(move)
+            if value > alpha:
+                alpha = value
+            if value >= beta:
+                return eval
         return random.choice(chosen_moves)
 
 
-    def value(self, gameinfo, current_agent, current_depth):
+    def value(self, gameinfo, current_agent, current_depth, alpha, beta ):
         if current_agent > 1:
             current_depth += 1
             current_agent = 0
@@ -129,30 +135,38 @@ class Minimax():
             return self.evaluate(gameinfo[0])
 
         if current_agent == 0:
-            return self.max_value(gameinfo, current_agent, current_depth)
+            return self.max_value(gameinfo, current_agent, current_depth, alpha, beta)
         else:
-            return self.min_value(gameinfo, current_agent, current_depth)
+            return self.min_value(gameinfo, current_agent, current_depth, alpha ,beta)
 
-    def max_value(self, gameinfo,current_agent, current_depth):
+    def max_value(self, gameinfo,current_agent, current_depth, alpha, beta):
         if current_depth >= self.depth or len(gameinfo[1]) == 0:
             return self.evaluate(gameinfo[0])
         value = -float("inf")
         valid_moves = gameinfo[1]
         for move in valid_moves:
-            new_value = self.value(self.generateSuccessor(move,gameinfo), current_agent + 1, current_depth)
+            new_value = self.value(self.generateSuccessor(move,gameinfo), current_agent + 1, current_depth, alpha, beta)
             if value < new_value:
                 value = new_value
+            if value > alpha:
+                alpha = value
+            if value > beta:
+                return value
         return value
 
-    def min_value(self, gameinfo, current_agent, current_depth):
+    def min_value(self, gameinfo, current_agent, current_depth, alpha, beta):
         if current_depth >= self.depth or len(gameinfo[1]) == 0:
             return self.evaluate(gameinfo[0])
         value = float("inf")
         valid_moves = gameinfo[1]
         for move in valid_moves:
-            new_value = self.value(self.generateSuccessor(move,gameinfo), current_agent + 1, current_depth)
+            new_value = self.value(self.generateSuccessor(move,gameinfo), current_agent + 1, current_depth, alpha, beta)
             if value > new_value:
                 value = new_value
+            if value < beta:
+                beta = value
+            if value < alpha:
+                return value
         return value
 
     def evaluate(self, gamestate):
@@ -181,7 +195,7 @@ class Minimax():
             if (gamestate[node] == 'grey'):
                 valid_moves.remove(node)
             gamestate[node] = player
-            return [gamestate, valid_moves, agent+1]
+        return [gamestate, valid_moves, agent+1]
   
 
 
@@ -190,16 +204,13 @@ class Minimax():
 
 def CustomAlgorithm(g,player):
     """
-    gamestate is the dictionary of dictionary.
-    The key is a node number and the value is a color of the node.
-    valid_moves contains the nodes that are available to be chosen.
-    player contains a string of your color:(red or blue)
+    colors are dictionary of dictionary.
+    Key is a node number and value is a color of the node.
+    You can access your color by self.getColor()
     return string of integer by using str() function
-    check the given algorithms (random,greedy) for references.
-    check the documentation for networkx version 2.1 for graph functions.
+    check the given algorithms (random,greedy) for references..
     """
-    gamestate = nx.get_node_attributes(g.get_graph(),'color')
-    valid_moves. = g.getValidMoves()
+    colors = nx.get_node_attributes(g.get_graph(),'color')
     #Todo: Write your code here!
     return 
 """
@@ -261,17 +272,20 @@ class computer(object):
                     self.algorithm = MinimaxAlgorithm
                 # elif select == 5 :
                 #     self.algorithm = CustomAlgorithm
-                #elif select == 6 :
-                #    self.algorithm = CustomAlgorithm2
-                #elif select == 7 :
-                #    self.algorithm = CustomAlgorithm3
-                #elif select == 8 :
-                #    self.algorithm = CustomAlgorithm4
-                #elif select == 9 :
-                #    self.algorithm = CustomAlgorithm5
                 else:
                     valid_choice = False
                     print("Invalid choice of algorithm")
+            """
+            YOU MAY NEED TO ADD MORE elif statement
+            """
+            #elif select == 6 :
+            #    self.algorithm = CustomAlgorithm2
+            #elif select == 7 :
+            #    self.algorithm = CustomAlgorithm3
+            #elif select == 8 :
+            #    self.algorithm = CustomAlgorithm4
+            #elif select == 9 :
+            #    self.algorithm = CustomAlgorithm5
             self.makeSelection = True
             return self.algorithm(graph,color)
         
