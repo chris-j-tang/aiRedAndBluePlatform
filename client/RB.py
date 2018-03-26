@@ -202,6 +202,7 @@ class RBGame(object):
         self.G.printGraphDetails(self, final_output)
         self.G.printGraphJson(self,final_json)
         final_output.close()
+        print '\n\nLook at "graph_details.txt" for more information on this game'
         self.G.printGraph()
 
 if __name__=="__main__":  
