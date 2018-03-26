@@ -24,7 +24,6 @@ import argparse
 server communication: 
 1. server will only send graph at the beginning.
 2. move will be updated on the server and client machine.
-
 """
 class RBGame(object):
     def __init__(self,n,r,t):
@@ -49,28 +48,28 @@ class RBGame(object):
         if gameMode == 1:
             self.gameMode = 1
             self.player1 = Agent.human(self.assigned[0])
-            self.player2 = Agent.computer(self.assigned[1])            
+            self.player2 = Agent.computer(self.assigned[1])
         elif gameMode ==2:
             self.gameMode = 2
             self.player1 = Agent.human(self.assigned[0])
-            self.player2 = Agent.human(self.assigned[1])            
+            self.player2 = Agent.human(self.assigned[1])
         else:
             self.gameMode = 0
             self.player1 = Agent.computer(self.assigned[0])
-            self.player2 = Agent.computer(self.assigned[1])            
-            
+            self.player2 = Agent.computer(self.assigned[1])
+
         print "Player 1 is "+self.assigned[0]+" and Player 2 is "+self.assigned[1]
-    
+
     def setNode(self,n):
         self.G = G.Graph(n,0.1)
     def setGUI(self,OnOff):
-        self.gui = OnOff     
+        self.gui = OnOff
     def setRound(self,r):
         self.rounds = r
-        
+
     def setTime(self,t):
         self.time = t
-        
+
     def print_game_info(self):
         print "This game is ",
         if self.gameMode ==0:
@@ -82,14 +81,14 @@ class RBGame(object):
         print "It is round: "+str(self.current_turn)+"and is " +self.turn_player+"'s turn."
         print "Current result  of the game:"
         print "                    Red: "+ str(self.point[0])
-        print "                    Blue: "+ str(self.point[1])        
-        
+        print "                    Blue: "+ str(self.point[1])
+
     def update_point(self,r,b):
         self.point[0]+=r
         self.point[1]+=b
-        
+
     def rand_start(self):
-        
+
         #randomely assign red or blue to players
         if random.choice([True,False]):
             self.assigned = ["red","blue"]
@@ -116,7 +115,7 @@ class RBGame(object):
     #     else:
     #         print "Starting human vs human"
     #         self.pvp()
-            
+
     def make_play(self,player):
         print "It is "+self.turn_player+"'s turn."
         print 'Select a node or type \"-1\" to skip your turn. Type "print" to retrieve current status of graph'
@@ -132,7 +131,7 @@ class RBGame(object):
                 selected_node = player.run(self.G,player.color)
                 if selected_node == 'print':
                     output = open('graphStatus.json', 'w')
-                    self.G.printGraphJson(self,output,False)
+                    self.G.printGraphJson(self,output)
                     print 'Graph status printed to "graph_status.json", now choose your move.'
                     output.close()
                 elif selected_node == "-1":
@@ -141,7 +140,7 @@ class RBGame(object):
                     self.score_list.append((self.point[0],self.point[1]))
                     return True
                 elif selected_node.isdigit() == False:
-                    print "Not a numeric or skip. "+str(self.time-(t.time()-counter))+" seconds left!"
+                    print "Invalid move, please input a node number. "+str(self.time-(t.time()-counter))+" seconds left!"
             result = self.G.mark(self.turn_player,int(selected_node))
             if result ==(0,0):
                 print "\nCannot select: "+str(int(selected_node))+". "
@@ -158,9 +157,9 @@ class RBGame(object):
                     self.update_point(-result[1],result[0])
                 self.score_list.append((self.point[0],self.point[1]))
                 return True
-                
 
-            
+
+
     def start_game(self):
         if self.gameMode == 0:
             print "Starting computer vs computer"
@@ -168,7 +167,8 @@ class RBGame(object):
             print "Starting human vs computer"
         else:
             print "Starting human vs human"
-        self.G.printGraph_node_only()
+        if self.gui:
+            self.G.printGraph(False, False)
         while ((self.current_turn+1)/2 <= self.rounds and len(self.G.getValidMoves()) != 0):
             print "\n\nRound: "+ str((self.current_turn+1)/2)
             if self.make_play(self.whosTurn()):
@@ -179,10 +179,10 @@ class RBGame(object):
                 else:
                     self.turn_player = "red"
                 if self.gui:
-                    self.G.printGraph_node_only()
+                    self.G.printGraph(False, False)
             else:
                 print self.turn_player + " lost"
-                self.G.printGraph()
+                #self.G.printGraph()
                 return False
         print "RESULTS of the game:"
         print "                    Red: "+ str(self.point[0])
@@ -199,20 +199,20 @@ class RBGame(object):
         self.G.printGraphJson(self,final_json)
         final_output.close()
         print '\n\nLook at "graph_details.txt" for more information on this game'
-        self.G.printGraph()
+        self.G.printGraph(True, True)
 
-if __name__=="__main__":  
+if __name__=="__main__":
     #parsing the arguments
     parser = argparse.ArgumentParser(description='Setting Red and Blue game.')
-    parser.add_argument('-g',type=bool,
+    parser.add_argument('-g',type=str,
                         help='Show GUI  (default: True)')
     parser.add_argument('-n',type=int,
                        help='set node number (default: 20 nodes)')
-    parser.add_argument('-r',type=int, 
+    parser.add_argument('-r',type=int,
                         help='set round limit (default: 10 rounds)')
-    parser.add_argument('-t',type=int, 
+    parser.add_argument('-t',type=int,
                         help='set time limit (default: 30 second)')
-    parser.add_argument('-p',type=int, 
+    parser.add_argument('-p',type=int,
                         help='set number of human player(s). Max 2. Default: 0(computer vs computer)')
     parser.add_argument('-f', type=str,
                         help='Input a graph as a json file')
@@ -226,7 +226,7 @@ if __name__=="__main__":
         game.rand_start()
 
     else:
-        game = RBGame(20,10,30)
+        game = RBGame(1100,10,30)
         game.rand_start()
         if args.n:
             game.setNode(args.n)
@@ -234,10 +234,12 @@ if __name__=="__main__":
             game.setRound(args.r)
         if args.t:
             game.setTime(args.t)
+
     if args.g:
-        game.setGUI(args.g)
+        if(args.g == "False"):
+            game.setGUI(False)
     if args.p:
+        print(str(args.p))
         game.setPlayer(args.p)
     #game start
     game.start_game()
-
