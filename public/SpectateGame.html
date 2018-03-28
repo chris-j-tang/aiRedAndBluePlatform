@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<title>Red & Blue Game - Spectate Game</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="style/style.css" >
+	<script src="https://code.jquery.com/jquery-1.12.1.min.js" integrity="sha256-I1nTg78tSrZev3kjvfdM5A5Ak/blglGzlaZANLPDl3I=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<div id="redBlue">
+		<div id="redHalf"></div>
+		<div id="blueHalf"></div>
+	</div>
+	<div class="centered">
+		<div class="centerBlock">
+			<input type="text" placeholder="Game Session ID" id="id" name="sessionid" class="inputSession" style="text-align:center;"></input>
+			<input type="button" class="myButton" value="Spectate Game" onClick="join()"></input>
+		</div>
+	</div>
+	<script>
+
+	$("body").keypress(function(e) {
+		if (e.which == 13) {
+			join();
+			return false;
+		}
+	});
+	</script>
+
+	<script type="text/javascript">
+		function join() {
+			sessionStorage.setItem('loc', "/game/" + document.getElementById("id").value);
+			sessionStorage.setItem('action', 'spectate');
+			window.location.replace("PlayGame.html");
+		}
+	</script>
+
+</body>
+</html>

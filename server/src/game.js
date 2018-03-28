@@ -26,6 +26,8 @@ class Game {
     this.time = time;
     this.graph = graph;
 
+	this.lastUpdate = -1;
+	
     this.turn = 0;
     this.players = {};
     this.order = [];
@@ -95,7 +97,10 @@ class Game {
     assert(this.isTurn(player), 'Wrong player');
     assert(this.graph.getColor(node) == Colors.NONE, 'Node is already colored');
     assert(this.promises.request[player] != undefined, 'Player did not request turn');
-    delete this.promises.request[player];
+    
+	this.lastUpdate = new Date().getTime();
+	
+	delete this.promises.request[player];
     let opreq = this.request(this.getOpponent(player));
 
     const color = this.getColor(player);
@@ -122,7 +127,12 @@ class Game {
         time: this.time,
         graph: this.graph.getAdjacencyLists(),
       },
-      colors: this.graph.getColors()
+      colors: this.graph.getColors(),
+	  scores: Object.values(this.players).map(p => p.score),
+	  curRound: this.getRound(),
+	  turn: this.turn,
+	  lastUpdate: this.lastUpdate,
+	  isDone: this.isDone()
     }));
   }
 }
